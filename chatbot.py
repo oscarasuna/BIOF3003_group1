@@ -1,11 +1,13 @@
 import streamlit as st
 from openai import OpenAI
+from dotenv import load_dotenv
 import os
 
 # ------------------------------
 # 1. Configuration
 # ------------------------------
-OPENROUTER_API_KEY = "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"  # Set your OpenRouter API key
+load_dotenv()
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  # Set your OpenRouter API key
 MODEL_NAME = "openai/gpt-oss-120b:free"  # Free tier model
 
 # Initialize OpenRouter client (OpenAI-compatible)
