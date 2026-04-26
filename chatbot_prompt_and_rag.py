@@ -216,7 +216,7 @@ def get_bot_response(user_message: str, history: list, rag_index, rag_chunks, ra
 # ------------------------------
 st.set_page_config(page_title="心理健康聊天機械人 | Mental Health Chatbot", page_icon="🧠")
 st.title("心伴 · MindfulCompanion")
-st.markdown("我在此聆聽與支援你。**我不是危機熱線或專業治療師。** 若你處於緊急危險中，請立即致電 **The Samaritan Befrienders Hong Kong 2389 2222**（24小時）")
+st.markdown("我在此聆聽與支援你。**我不是危機熱線或專業治療師。** 若你處於緊急危險中，請立即致電 **香港撒瑪利亞防止自殺會 2389 2222**（24小時）\n\nI am here to listen and support you. **I am not a crisis hotline or professional therapist.** If you are in immediate danger, please call **The Samaritan Befrienders Hong Kong at 2389 2222** (24 hours).")
 
 with st.spinner("載入文件索引中... Loading document index..."):
     rag_index, rag_chunks, rag_metadata, rag_embedder = load_rag()
@@ -229,13 +229,13 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
     st.markdown("---")
-    st.subheader("香港緊急支援資源")
+    st.subheader("香港緊急支援資源 Hong Kong emergency support resources")
     st.markdown("""
-    - **The Samaritan Befrienders HK (24小時)**: 2389 2222  
-    - **防止自殺熱線**: 2382 0000  
-    - **醫院管理局精神健康專線**: 2466 7350  
+        - **香港撒瑪利亞防止自殺會 (24小時) The Samaritan Befrienders Hong Kong (24 hours)**: 2389 2222
+        - **生命熱線 Suicide Prevention Services**: 2382 0000
+        - **醫院管理局精神健康專線 Hospital Authority - Mental Health Direct**: 2466 7350
     """)
-    st.caption("若你感到難以承受，請致電以上機構。")
+    st.caption("若你感到難以承受，請致電以上機構 If you find it overwhelming, please call the above organizations.")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
