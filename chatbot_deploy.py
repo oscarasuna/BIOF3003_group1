@@ -297,7 +297,7 @@ if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"
         with st.chat_message("assistant"):
             st.markdown(crisis_response)
         st.session_state.messages.append({"role": "assistant", "content": crisis_response})
-        save_conversation(st.session_state.messages)
+        # save_conversation(st.session_state.messages)
         st.stop()   # Prevents any further code execution (including LLM call)
     # --- END CRISIS CHECK ---
 
