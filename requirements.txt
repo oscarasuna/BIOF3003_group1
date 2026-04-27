@@ -6,6 +6,3 @@ sentence-transformers
 faiss-cpu
 numpy
 dotenv
-os
-pathlib
-pickle
