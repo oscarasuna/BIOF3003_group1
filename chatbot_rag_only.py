@@ -102,16 +102,21 @@ def load_rag():
 
     return index, chunks, metadata, embedder
 
-def retrieve_context(query: str, index, chunks, embedder, top_k=3) -> str:
-    """Return top-k relevant text chunks as a single string."""
+def retrieve_context(query: str, index, chunks, metadata, embedder, top_k=3) -> str:
+    """Return top-k relevant text chunks with their source filenames."""
     if index is None or not chunks:
         return ""
     query_vec = embedder.encode([query])
     distances, indices = index.search(query_vec.astype(np.float32), top_k)
-    retrieved = [chunks[i] for i in indices[0] if i < len(chunks)]
-    if not retrieved:
+    retrieved_chunks = []
+    for i in indices[0]:
+        if i < len(chunks):
+            src = metadata[i]["source"]
+            text = chunks[i]
+            retrieved_chunks.append(f"[Source: {src}]\n{text}")
+    if not retrieved_chunks:
         return ""
-    return "\n\n---\n\n".join(retrieved)
+    return "\n\n---\n\n".join(retrieved_chunks)
 
 # ------------------------------
 # 3. Helper: Build message list with reasoning history
@@ -126,7 +131,7 @@ def build_messages_with_history(history: list, rag_context: str = "") -> list:
     if rag_context:
         messages.append({
             "role": "system",
-            "content": f"Relevant information from documents:\n{rag_context}\n\nUse this information to answer the user's question if helpful. Do not mention that you received this information."
+            "content": f"Additional relevant information from documents:\n{rag_context}\n\nUse this information if it helps answer the user's question. At the end of your response, list the source document names you used (the ones in [Source: ...] markers). Do not mention that you received this information from a system message."
         })
     for msg in history:
         if msg["role"] == "assistant" and "reasoning_details" in msg:
@@ -145,9 +150,9 @@ def build_messages_with_history(history: list, rag_context: str = "") -> list:
 # ------------------------------
 # 4. Get Bot Response (with reasoning enabled)
 # ------------------------------
-def get_bot_response(user_message: str, history: list, rag_index, rag_chunks, rag_embedder) -> tuple:
+def get_bot_response(user_message: str, history: list, rag_index, rag_metadata, rag_chunks, rag_embedder) -> tuple:
     # Retrieve relevant context from PDFs
-    context = retrieve_context(user_message, rag_index, rag_chunks, rag_embedder, top_k=3)
+    context = retrieve_context(user_message, rag_index, rag_chunks, rag_metadata, rag_embedder, top_k=3)
 
     # Build messages (including RAG context as ephemeral system message)
     messages = build_messages_with_history(history, rag_context=context)
@@ -215,6 +220,7 @@ if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"
                 prompt,
                 st.session_state.messages[:-1],
                 rag_index,
+                rag_metadata, 
                 rag_chunks,
                 rag_embedder
             )
