@@ -8,6 +8,8 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import pickle
+import json
+
 
 # ------------------------------
 # 1. Configuration
@@ -15,6 +17,22 @@ import pickle
 load_dotenv()
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  # Set your OpenRouter API key
 MODEL_NAME = "openai/gpt-oss-120b:free"  # Free tier model
+HISTORY_FILE = "chat_history.json"
+
+def save_conversation(messages):
+    """Save conversation to a JSON file."""
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(messages, f, ensure_ascii=False, indent=2)
+
+def load_conversation():
+    """Load conversation from JSON file if exists."""
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
 
 # Initialize OpenRouter client (OpenAI-compatible)
 client = OpenAI(
@@ -187,6 +205,8 @@ with st.sidebar:
     st.header("選項 Options")
     if st.button("清除對話 Clear Conversation"):
         st.session_state.messages = []
+        if os.path.exists(HISTORY_FILE):
+            os.remove(HISTORY_FILE)
         st.rerun()
     st.markdown("---")
     st.subheader("香港緊急支援資源 Hong Kong emergency support resources")
@@ -199,7 +219,7 @@ with st.sidebar:
 
 # Initialize chat history
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = load_conversation()
 
 # Display existing messages
 for msg in st.session_state.messages:
@@ -210,6 +230,7 @@ for msg in st.session_state.messages:
 if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"):
     # Add user message
     st.session_state.messages.append({"role": "user", "content": prompt})
+    save_conversation(st.session_state.messages)
     with st.chat_message("user"):
         st.markdown(prompt)
 
@@ -231,5 +252,6 @@ if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"
     if reasoning_details:
         assistant_msg["reasoning_details"] = reasoning_details
     st.session_state.messages.append(assistant_msg)
+    save_conversation(st.session_state.messages)
 
 
