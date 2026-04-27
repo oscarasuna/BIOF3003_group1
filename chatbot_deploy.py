@@ -43,6 +43,15 @@ client = OpenAI(
 # ------------------------------
 # 2. Your System Prompt (Mental Health Guidelines for Hong Kong)
 # ------------------------------
+CRISIS_KEYWORDS = [
+    "suicide", "kill myself", "want to die", "end my life",
+    "self harm", "hurt myself", "take pills", "overdose"
+]
+
+def is_crisis(text: str) -> bool:
+    text_lower = text.lower()
+    return any(kw in text_lower for kw in CRISIS_KEYWORDS)
+
 SYSTEM_PROMPT = """
 You are a mental wellness support AI named MindfulCompanion. You are not a therapist or doctor.
 
@@ -102,6 +111,7 @@ Provide ONLY the final user‑facing response. Do not include your internal reas
 RAG_DOC_DIR = "rag_doc"
 CACHE_DIR = ".rag_cache"
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+
 
 @st.cache_resource
 def load_rag():
@@ -275,6 +285,21 @@ if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"
     save_conversation(st.session_state.messages)
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    # --- CRISIS CHECK FIRST ---
+    if is_crisis(prompt):
+        crisis_response = (
+            "I'm really concerned about what you're sharing. "
+            "Please reach out to **The Samaritan Befrienders Hong Kong** at **2389 2222** "
+            "(24-hour hotline). They are trained to help. "
+            "Can you also tell me a trusted person nearby you can call right now?"
+        )
+        with st.chat_message("assistant"):
+            st.markdown(crisis_response)
+        st.session_state.messages.append({"role": "assistant", "content": crisis_response})
+        save_conversation(st.session_state.messages)
+        st.stop()   # Prevents any further code execution (including LLM call)
+    # --- END CRISIS CHECK ---
 
     with st.chat_message("assistant"):
         with st.spinner("思考中 + 檢索文件... Thinking + retrieving..."):
