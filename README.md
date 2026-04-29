@@ -19,20 +19,28 @@ MindfulCompanion is a **Streamlit-based mental health chatbot** designed to prov
 
 ---
 
+## 🌐 Deployed Application
+
+The MindfulCompanion chatbot is live on Streamlit Cloud (via chat_deploy.py). You can access it here:
+
+👉 [https://biof3003group1-ugnzbdbvvoqc7z2ijfsep9.streamlit.app](https://biof3003group1-ugnzbdbvvoqc7z2ijfsep9.streamlit.app)
+
+---
+
 In this repository, there are 4 versions of chatbot applications for experimenting:
 
 1. chatbot_basic.py (without RAG, prompting)
 2. chatbot_prompt_only.py (without RAG, with prompting)
 3. chatbot_rag_only.py (with RAG, without prompting)
-4. chatbot_prompt_and_rag.py (with RAG, prompting)
+4. chatbot_prompt_and_rag.py (with RAG, prompting) -> deployed version
 
 ---
 
-## 🚀 Setup & Installation
+## 🚀 Setup & Installation (if run locally)
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/oscarasuna/BIOF3003-Assign.git
+git clone https://github.com/oscarasuna/BIOF3003_group1.git
 ```
 
 ### 2. Create a virtual environment (recommended)
