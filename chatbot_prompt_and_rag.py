@@ -39,6 +39,15 @@ client = OpenAI(
     api_key=OPENROUTER_API_KEY,
 )
 
+CRISIS_KEYWORDS = [
+    "suicide", "kill myself", "want to die", "end my life",
+    "self harm", "hurt myself", "take pills", "overdose"
+]
+
+def is_crisis(text: str) -> bool:
+    text_lower = text.lower()
+    return any(kw in text_lower for kw in CRISIS_KEYWORDS)
+
 # ------------------------------
 # 2. Your System Prompt (Mental Health Guidelines for Hong Kong)
 # ------------------------------
@@ -274,6 +283,18 @@ if prompt := st.chat_input("你今天感覺如何？ How are you feeling today?"
     save_conversation(st.session_state.messages)
     with st.chat_message("user"):
         st.markdown(prompt)
+
+    # --- CRISIS CHECK FIRST ---
+    if is_crisis(prompt):
+        crisis_response = (
+            "I'm really concerned about what you're sharing. "
+            "Please reach out to **The Samaritan Befrienders Hong Kong** at **2389 2222** "
+            "(24-hour hotline). They are trained to help. "
+        )
+        with st.chat_message("assistant"):
+            st.markdown(crisis_response)
+        st.stop()   # Prevents any further code execution (including LLM call)
+    # --- END CRISIS CHECK ---
 
     with st.chat_message("assistant"):
         with st.spinner("思考中 + 檢索文件... Thinking + retrieving..."):
